@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Token Login</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome to Student Reward System</h1>
+    <button id="loginBtn">Sign in with Google</button>
+  </div>
+
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAeZ3uYSYDwZZW2b059Ed3xadeFv7ipBn4",
+      authDomain: "studentrewardsystem-1584e.firebaseapp.com",
+      projectId: "studentrewardsystem-1584e",
+      storageBucket: "studentrewardsystem-1584e.firebasestorage.app",
+      messagingSenderId: "538904572355",
+      appId: "1:538904572355:web:aa7f682cac53d769ffcd76"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const loginBtn = document.getElementById("loginBtn");
+
+    loginBtn.addEventListener("click", () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          const user = result.user;
+          // Optional: Save user data to Firestore if first time
+          db.collection("users").doc(user.uid).set({
+            name: user.displayName,
+            email: user.email,
+            tokens: 0
+          }, { merge: true });
+
+          // Redirect to dashboard
+          window.location.href = "dashboard.html";
+        })
+        .catch((error) => {
+          alert("Login failed: " + error.message);
+        });
+    });
+  </script>
+</body>
+</html>
