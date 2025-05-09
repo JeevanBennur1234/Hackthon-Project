@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>🎓 Student Dashboard</h2>
+    <p><strong>Name:</strong> <span id="studentName"></span></p>
+    <p><strong>Email:</strong> <span id="studentEmail"></span></p>
+    <p><strong>Tokens:</strong> <span id="tokenCount">Loading...</span></p>
+    <button id="redeemBtn">Redeem 5 Tokens</button>
+    <br><br>
+    <button id="logoutBtn">Logout</button>
+  </div>
+
+  <!-- Firebase Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Firebase config (same as in index.html)
+    const firebaseConfig = {
+      apiKey: "AIzaSyAeZ3uYSYDwZZW2b059Ed3xadeFv7ipBn4",
+      authDomain: "studentrewardsystem-1584e.firebaseapp.com",
+      projectId: "studentrewardsystem-1584e",
+      storageBucket: "studentrewardsystem-1584e.firebasestorage.app",
+      messagingSenderId: "538904572355",
+      appId: "1:538904572355:web:aa7f682cac53d769ffcd76"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const studentName = document.getElementById("studentName");
+    const studentEmail = document.getElementById("studentEmail");
+    const tokenCount = document.getElementById("tokenCount");
+    const redeemBtn = document.getElementById("redeemBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        studentName.innerText = user.displayName;
+        studentEmail.innerText = user.email;
+
+        const userDocRef = db.collection("users").doc(user.uid);
+
+        // Realtime token display
+        userDocRef.onSnapshot(doc => {
+          if (doc.exists) {
+            const data = doc.data();
+            tokenCount.innerText = data.tokens ?? 0;
+          }
+        });
+
+        // Redeem tokens
+        redeemBtn.addEventListener("click", () => {
+          userDocRef.get().then(doc => {
+            let current = doc.data().tokens ?? 0;
+            if (current >= 5) {
+              userDocRef.update({ tokens: current - 5 });
+              alert("🎉 5 Tokens Redeemed!");
+            } else {
+              alert("❌ Not enough tokens to redeem.");
+            }
+          });
+        });
+
+        // Logout
+        logoutBtn.addEventListener("click", () => {
+          auth.signOut().then(() => {
+            window.location.href = "index.html";
+          });
+        });
+
+      } else {
+        // If user not logged in
+        alert("Please login first.");
+        window.location.href = "index.html";
+      }
+    });
+  </script>
+</body>
+</html>

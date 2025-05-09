@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel - Token Assignment</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>👩‍🏫 Admin - Assign Tokens</h2>
+
+    <label for="studentEmail"><strong>Student Email:</strong></label>
+    <input type="email" id="studentEmail" placeholder="Enter student email" required />
+    <br><br>
+
+    <label for="tokenAmount"><strong>Tokens to Add:</strong></label>
+    <input type="number" id="tokenAmount" min="1" placeholder="e.g., 10" required />
+    <br><br>
+
+    <button id="addTokensBtn">Add Tokens</button>
+    <br><br>
+    <button id="logoutBtn">Logout</button>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAeZ3uYSYDwZZW2b059Ed3xadeFv7ipBn4",
+      authDomain: "studentrewardsystem-1584e.firebaseapp.com",
+      projectId: "studentrewardsystem-1584e",
+      storageBucket: "studentrewardsystem-1584e.firebasestorage.app",
+      messagingSenderId: "538904572355",
+      appId: "1:538904572355:web:aa7f682cac53d769ffcd76"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    const studentEmailInput = document.getElementById("studentEmail");
+    const tokenAmountInput = document.getElementById("tokenAmount");
+    const addTokensBtn = document.getElementById("addTokensBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    // Admin must be signed in
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        alert("Please login as admin.");
+        window.location.href = "index.html";
+      }
+    });
+
+    addTokensBtn.addEventListener("click", () => {
+      const email = studentEmailInput.value.trim();
+      const amount = parseInt(tokenAmountInput.value);
+
+      if (!email || isNaN(amount) || amount <= 0) {
+        alert("❗ Please enter valid email and token amount.");
+        return;
+      }
+
+      // Find user by email
+      db.collection("users").where("email", "==", email).get()
+        .then(snapshot => {
+          if (snapshot.empty) {
+            alert("❌ No user found with that email.");
+            return;
+          }
+
+          snapshot.forEach(doc => {
+            const current = doc.data().tokens ?? 0;
+            doc.ref.update({ tokens: current + amount });
+            alert(`✅ Added ${amount} tokens to ${email}`);
+          });
+        })
+        .catch(error => {
+          console.error(error);
+          alert("❌ Error assigning tokens.");
+        });
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      auth.signOut().then(() => {
+        window.location.href = "index.html";
+      });
+    });
+  </script>
+</body>
+</html>
