@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Redeem Tokens</title>
+  <script type="module" src="script.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Redeem Your Tokens</h1>
+  <div id="user-info">
+    <p><strong>Name:</strong> <span id="name"></span></p>
+    <p><strong>Tokens Available:</strong> <span id="tokens"></span></p>
+  </div>
+
+  <h2>Rewards</h2>
+  <div>
+    <button onclick="redeemReward(5)">🎁 Notebook - 5 Tokens</button>
+    <button onclick="redeemReward(10)">🎧 Headphones - 10 Tokens</button>
+    <button onclick="redeemReward(15)">🎒 Backpack - 15 Tokens</button>
+  </div>
+
+  <br>
+  <button onclick="logout()">Logout</button>
+</body>
+</html>
